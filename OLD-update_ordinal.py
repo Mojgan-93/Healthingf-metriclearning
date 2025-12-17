@@ -114,28 +114,13 @@ def Analysis(dataset):
 	start_time = PrintDoingTime(start_time, 'total metrics learning')
 	PrintEndline()
 	
-	
-	# 4 modelling and prediction: after optimization
-	
-	# 4.1 update X_train & X_test through m_optimized_raw
+
 	X_train_ordinal_updated = expected.GetEZDataFrame(m_optimized_raw, X)
-	
-
-	# Step 2: Concatenate the updated ordinal columns back into the processed data
 
 
-	### Scalling -->standard Ssalar
-
-
-	## Save Train and Test
 	X_train_ordinal_updated.to_csv(f"plots/XTrain_{TRAIN_SIZE}_{dataset}.csv", index=False)
 	y.to_csv(f"plots/yTrain_{TRAIN_SIZE}_{dataset}.csv", index=False)
 
-	# 3.3 get new result
-	
-
-	
-	# 4 more reporting
 	
 	PrintEndline()
 	print('train objective initial      = ', round(optimized_result['objective_value_initial'],  2))
