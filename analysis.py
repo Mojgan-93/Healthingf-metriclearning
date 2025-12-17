@@ -93,8 +93,8 @@ def Analysis(dataset):
 		test_size = None
 	
 	#### *********** Determine X_train, X_test, y_train, y_test  BY Yourself
-	train = pd.read_csv('/Users/mkouhounesta/Desktop/mimic/prepared-data/train_with_icd.csv')
-	test  = pd.read_csv('/Users/mkouhounesta/Desktop/mimic/prepared-data/test_with_icd.csv')
+	train = pd.read_csv(../train.csv')
+	test  = pd.read_csv('../test.csv')
 	X_train = train[variable].copy()
 	y_train = train[outcome].copy()
 	X_test = test[variable].copy()
@@ -128,14 +128,12 @@ def Analysis(dataset):
 	result_baseline_df.to_csv(f"plots/baseline_{TRAIN_SIZE}_{dataset}.csv", index=False)
 	
 	
-	## Prepare data for metric learning
 	ordinal_columns = ['triage_acuity', 'triage_pain']
 	ordinal_data_train = X_train_processed[ordinal_columns]
 	ordinal_data_test = X_test_processed[ordinal_columns]
 	X_train_processed_no_ordinal = X_train_processed.drop(columns=ordinal_columns)
 	X_test_processed_no_ordinal = X_test_processed.drop(columns=ordinal_columns)
 
-	# # 3 metrics learning from train data
 
 	start_time = time.time()
 	optimized_result = optimisation.GetOptimizedM(ordinal_data_train, y_train)
@@ -155,32 +153,25 @@ def Analysis(dataset):
 	print(f'there are {len(ordinal_data_train)} records in train data.')
 	start_time = PrintDoingTime(start_time, 'total metrics learning')
 	PrintEndline()
-	
-	
-	# 4 modelling and prediction: after optimization
-	
-	# 4.1 update X_train & X_test through m_optimized_raw
+
 	X_train_ordinal_updated = expected.GetEZDataFrame(m_optimized_raw, ordinal_data_train)
 	X_test_ordinal_updated  = expected.GetEZDataFrame(m_optimized_raw, ordinal_data_test)
 	
 
-	# Step 2: Concatenate the updated ordinal columns back into the processed data
+
 	X_train_concat = pd.concat([X_train_processed_no_ordinal, X_train_ordinal_updated], axis=1)
 	X_test_concat = pd.concat([X_test_processed_no_ordinal, X_test_ordinal_updated], axis=1)
 
-	### Scalling -->standard Ssalar
 	scaler.fit(X_train_concat)
 	X_train_final = scaler.transform(X_train_concat)
 
 	X_test_final = scaler.transform(X_test_concat)
 
-	## Save Train and Test
 	X_train_final.to_csv(f"plots/XTrain_{TRAIN_SIZE}_{dataset}.csv", index=False)
 	y_train.to_csv(f"plots/yTrain_{TRAIN_SIZE}_{dataset}.csv", index=False)
 	X_test_final.to_csv(f"plots/XTest_{TRAIN_SIZE}_{dataset}.csv", index=False)
 	y_test.to_csv(f"plots/yTest_{TRAIN_SIZE}_{dataset}.csv", index=False)
 
-	# 3.3 get new result
 	for model_name, model in models:
 
 		new_results_data = ModelAndPredict(X_train_final, y_train, X_test_final, y_test, model)
