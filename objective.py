@@ -44,44 +44,6 @@ def ObjectiveFunc_M(M_flattened, Matrix_E_z, matrix_var, gamma, lambda_, X, y):
 	return CalcDistance(M, Matrix_E_z, matrix_var, gamma, lambda_, X, y, n_jobs=8)
 
 
-# def CalcDistance(M, Matrix_E_z, matrix_var, gamma, lambda_, X, y, n_jobs=8):
-#     # Function to process each data point independently
-#     def process_point(i):
-#         E_distance_local = 0
-#         distance_cache = {}  # Local cache for each process
-
-#         # Find target and impostor neighbors
-#         target_neighbors, impostor_neighbors = FindNeighbors(i, X, y)
-
-#         # Calculate distance for target neighbors
-#         for j in target_neighbors:
-#             if (i, j) in distance_cache:
-#                 E_distance_ij = distance_cache[(i, j)]
-#             else:
-#                 E_distance_ij = expected_distance(i, j, Matrix_E_z, matrix_var[f'matrix_{i+1}'], matrix_var[f'matrix_{j+1}'], M)
-#                 distance_cache[(i, j)] = E_distance_ij
-
-#             E_distance_local += E_distance_ij
-
-#             # Calculate distance for impostor neighbors
-#             for k in impostor_neighbors:
-#                 if (i, k) in distance_cache:
-#                     E_distance_ik = distance_cache[(i, k)]
-#                 else:
-#                     E_distance_ik = expected_distance(i, k, Matrix_E_z, matrix_var[f'matrix_{i+1}'], matrix_var[f'matrix_{k+1}'], M)
-#                     distance_cache[(i, k)] = E_distance_ik
-
-#                 # Compute hinge loss
-#                 hinge_value = hinge_loss(E_distance_ij - E_distance_ik + gamma)
-#                 E_distance_local += lambda_ * hinge_value
-
-#         return E_distance_local
-
-#     # Parallelize the outer loop using joblib's Parallel and delayed
-#     E_distance = sum(Parallel(n_jobs=n_jobs)(delayed(process_point)(i) for i in range(len(X))))
-
-#     return E_distance
-
 def CalcDistance(M, Matrix_E_z, matrix_var, gamma, lambda_, X, y, n_jobs=8):
     def process_point(i):
         E_distance_local = 0
