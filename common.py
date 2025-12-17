@@ -6,19 +6,17 @@ import pandas.testing as pdt
 
 
 
-#TRAIN_SIZE = 150
 TRAIN_SIZE = 50
 
-# Which metho to get M2
 INITIAL_M  = 'Initialized M'
 IDENTITY_M = 'Identity Matrix M'
 CALCULATED_M = 'Calculated M'
 
-# For generating result
 confidence_interval = 95
 random_seed=0
 result_list = []
 result_list_baseline = []
+
 # minimum difference between m thresholds
 SMALL_DIFFERENCE = 0.1
 
@@ -100,38 +98,13 @@ def get_n_unique_rows_with_index(remaining_X, feature, remaining_vals):
 
 
 def GetSample(X, y, n, cat_features = None, random_state = None):
-	"""
-	Parameters:
-	-----------
-	X : DataFrame
-		Feature matrix.
-	y : Series
-		Target values.
-	n : int
-		Number of samples to return.
-	random_state : int or None, optional
-		Random state to control randomness.
-	cat_features : list or None, optional
-		List of categorical feature names.
-		If None, all features are treated as categorical.
-		
-	Returns:
-	--------
-	sampled_X : DataFrame
-		Subsampled DataFrame with at least one instance of each unique value
-		in the categorical features.
-	sampled_y : Series
-		Corresponding target values for the subsampled DataFrame.
-	"""
 	
-	# Ensure X is a DataFrame and y is a Series
+	
 	assert isinstance(X, pd.DataFrame), "X should be a pandas DataFrame."
 	assert isinstance(y, pd.Series) or isinstance(y, pd.DataFrame), "y should be a pandas Series or a DataFrame."
 	
-	# Assert that X and y have the same index
 	assert X.index.equals(y.index), "X and y must have the same index."
 	
-	# Set the global random seed for reproducibility
 	if random_state is not None:
 		
 		np.random.seed(random_state)
@@ -140,11 +113,9 @@ def GetSample(X, y, n, cat_features = None, random_state = None):
 		
 		cat_features = X.columns.tolist()
 	
-	# Step 1: Randomly sample `n` rows from X
 	sampled_X = X.sample(n = n)
 	sampled_y = y.loc[sampled_X.index]
 	
-	# Step 2: Check if all unique values of each cat_feature are present
 	all_values_present = True
 	
 	for feature in cat_features:
@@ -158,13 +129,11 @@ def GetSample(X, y, n, cat_features = None, random_state = None):
 			break
 	
 	
-	# Step 3: If all values are present, return the sample
 	if all_values_present:
 		
 		return sampled_X, sampled_y
 	
 	
-	# Step 4: Otherwise, initialize sampled_X and sampled_y from empty and implement the original logic to sample values
 	sampled_X = pd.DataFrame(columns = X.columns)  # Start with an empty DataFrame
 	
 	if (isinstance(pd.Series, pd.Series)):
@@ -180,21 +149,18 @@ def GetSample(X, y, n, cat_features = None, random_state = None):
 	
 	for feature in cat_features:
 		
-		# Get the unique values for this feature
 		unique_vals_in_sample = set(sampled_X[feature].dropna().unique()) if not sampled_X.empty else set()
 		unique_vals_in_X = set(remaining_X[feature].dropna().unique())
 		remaining_vals = unique_vals_in_X - unique_vals_in_sample
 		
 		if remaining_vals:
 			
-			# Sample rows corresponding to the remaining unique values for this feature # remaining_X[remaining_X[feature].isin(remaining_vals)]
 			additional_samples = get_n_unique_rows_with_index(remaining_X, feature, remaining_vals)
 			sampled_X = pd.concat([sampled_X, additional_samples])
 			sampled_y = pd.concat([sampled_y, remaining_y.loc[additional_samples.index]])
 			remaining_X = remaining_X.drop(index = additional_samples.index)
 			remaining_y = remaining_y.drop(index = additional_samples.index)
 	
-	# If the sampled rows are less than n, sample the remaining rows to complete n
 	if len(sampled_X) < n:
 		
 		extra_samples_X = remaining_X.sample(n = n - len(sampled_X))
