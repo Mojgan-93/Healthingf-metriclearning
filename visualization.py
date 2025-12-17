@@ -9,7 +9,6 @@ def Visulize_ordinal(df, m):
         unique_values = sorted(df[col].unique())
         new_values = []
         
-        # Calculate new values based on the given m
         for i in range(len(unique_values)):
             if i < len(unique_values) - 1:
                 new_value = 0.5 * (m[col_idx][i] + m[col_idx][i + 1])
@@ -17,7 +16,6 @@ def Visulize_ordinal(df, m):
                 new_value = m[col_idx][i]
             new_values.append(new_value)
 
-        # Map each unique value to its new calculated value
         value_mappings[col] = {unique_values[i]: new_values[i] for i in range(len(unique_values))}
 
     return value_mappings
@@ -25,11 +23,9 @@ def Visulize_ordinal(df, m):
 def plot_value_mappings(value_mappings, save_dir='plots'):
 
 
-    # Create the directory if it doesn't exist
     os.makedirs(save_dir, exist_ok=True)
 
-    # Define a color map or list of colors
-    colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']  # You can expand this list or use any color names
+    colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']  
 
     for idx, (col, mapping) in enumerate(value_mappings.items()):
         original_values = list(mapping.keys())
